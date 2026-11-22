@@ -71,7 +71,7 @@ class LockActivity : AppCompatActivity() {
             }
         )
         val info = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Unlock StatusVault")
+            .setTitle("Unlock MachStatusVault")
             .setNegativeButtonText("Use PIN")
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK)
             .build()

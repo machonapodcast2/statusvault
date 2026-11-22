@@ -20,15 +20,15 @@ jobs:
       - name: Build
         run: gradle :app:assembleRelease --no-daemon --stacktrace
       - name: Rename
-        run: cp app/build/outputs/apk/release/app-release.apk StatusVault.apk
+        run: cp app/build/outputs/apk/release/app-release.apk MachStatusVault.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: StatusVault-apk
-          path: StatusVault.apk
+          name: MachStatusVault-apk
+          path: MachStatusVault.apk
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
-          gh release create "v1.0.${{ github.run_number }}" StatusVault.apk
-          --title "StatusVault v1.0.${{ github.run_number }}"
-          --notes "Download StatusVault.apk below and open it on your Android phone to install."
+          gh release create "v1.0.${{ github.run_number }}" MachStatusVault.apk
+          --title "MachStatusVault v1.0.${{ github.run_number }}"
+          --notes "Download MachStatusVault.apk below and open it on your Android phone to install."

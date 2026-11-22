@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
             items = list ?: emptyList()
             when {
                 list == null -> showEmpty(
-                    "Allow StatusVault to read your ${src.label} statuses.\n\n" +
+                    "Allow MachStatusVault to read your ${src.label} statuses.\n\n" +
                         "On the next screen, tap \"Use this folder\" and then \"Allow\".",
                     "Grant access"
                 ) { askAccess() }
@@ -184,11 +184,24 @@ class MainActivity : AppCompatActivity() {
                     "Nothing saved yet.\nStatuses you save will appear here and in your gallery.",
                     null
                 ) {}
-                list.isEmpty() -> showEmpty(
-                    "No statuses to show.\n\nOpen ${src.label}, watch some statuses, " +
-                        "then come back and pull down to refresh.",
-                    "Open ${src.label}"
-                ) { openWhatsApp(src) }
+                list.isEmpty() -> {
+                    val folder = StatusRepo.lastFolder
+                    val wrong = !folder.endsWith(".Statuses")
+                    val text = if (wrong) {
+                        "The linked folder is not the status folder:\n$folder\n\n" +
+                            "Tap below and choose the folder named .Statuses."
+                    } else {
+                        "No " + (if (tab == 1) "videos" else "images") + " to show yet.\n\n" +
+                            "Statuses with a green ring in ${src.label} have not been opened. " +
+                            "Open them there first, then pull down here to refresh.\n\n" +
+                            "Linked folder holds ${StatusRepo.lastFileCount} file(s)."
+                    }
+                    if (wrong) {
+                        showEmpty(text, "Choose folder again") { askAccess() }
+                    } else {
+                        showEmpty(text, "Open ${src.label}") { openWhatsApp(src) }
+                    }
+                }
                 else -> hideEmpty()
             }
             adapter.notifyDataSetChanged()
