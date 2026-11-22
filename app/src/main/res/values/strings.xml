@@ -16,5 +16,6 @@
     <string name="use_fingerprint">Use fingerprint</string>
     <string name="locked_title">MachStatusVault is locked</string>
     <string name="enter_pin">Enter PIN</string>
-    <string name="about">MachStatusVault has no ads and no internet permission. Your statuses never leave your phone.\n\nForgot your PIN? Clear the app\'s data in Android settings. Saved statuses stay in your gallery.</string>
+    <string name="about">MachStatusVault has no ads and no internet permission. Your statuses never leave your phone.\n\nTelegram: open a photo or video, tap Share and choose \"Save to MachStatusVault\". It is saved to your gallery and the Saved tab.\n\nForgot your PIN? Clear the app\'s data in Android settings. Saved statuses stay in your gallery.</string>
+    <string name="share_target">Save to MachStatusVault</string>
 </resources>

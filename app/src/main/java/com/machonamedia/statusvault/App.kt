@@ -38,7 +38,7 @@ class App : Application(), ImageLoaderFactory, Application.ActivityLifecycleCall
 
     override fun onActivityStarted(activity: Activity) {
         started++
-        if (activity !is LockActivity && !unlocked && Prefs.lockEnabled(this)) {
+        if (activity !is LockActivity && activity !is ShareActivity && !unlocked && Prefs.lockEnabled(this)) {
             activity.startActivity(Intent(activity, LockActivity::class.java))
             activity.overridePendingTransition(0, 0)
         }
