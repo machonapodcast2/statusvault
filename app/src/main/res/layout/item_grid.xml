@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.machonamedia.statusvault.SquareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/thumb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/thumb_bg"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/play"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center"
+        android:background="@drawable/scrim_circle"
+        android:importantForAccessibility="no"
+        android:padding="6dp"
+        android:src="@drawable/ic_play"
+        android:visibility="gone"
+        app:tint="@android:color/white" />
+
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/select_overlay"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/check"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="6dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_check"
+        android:visibility="gone"
+        app:tint="@android:color/white" />
+
+    <ImageButton
+        android:id="@+id/save"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="4dp"
+        android:background="@drawable/scrim_circle"
+        android:contentDescription="@string/save"
+        android:padding="7dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_download"
+        app:tint="@android:color/white" />
+</com.machonamedia.statusvault.SquareFrameLayout>
