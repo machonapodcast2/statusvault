@@ -68,7 +68,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
-                android:text="Re-link WhatsApp status folder"
+                android:text="Re-link WhatsApp folder"
                 android:textSize="16sp" />
 
             <TextView
@@ -78,7 +78,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
-                android:text="Re-link WhatsApp Business status folder"
+                android:text="Re-link WhatsApp Business folder"
                 android:textSize="16sp" />
 
             <TextView

@@ -28,17 +28,45 @@ object StatusRepo {
     @Volatile
     var lastFileCount: Int = 0
 
-    private fun targets(s: Source): List<String> = listOf(
-        "primary:Android/media/${s.pkg}/${s.dir}/Media/.Statuses",
-        "primary:${s.dir}/Media/.Statuses"
+    /** Human-readable report of every status folder found on the last [list] call. */
+    @Volatile
+    var lastReport: String = ""
+
+    /** True when only a single .Statuses folder was linked instead of the whole WhatsApp folder. */
+    @Volatile
+    var lastNarrow: Boolean = false
+
+    private val WALK = setOf(
+        "Android", "media", "com.whatsapp", "com.whatsapp.w4b",
+        "WhatsApp", "WhatsApp Business", "Media", "accounts"
     )
+
+    /** Finds every ".Statuses" folder below [dirId] (main account, extra accounts). */
+    private fun findStatusDirs(
+        c: Context, tree: Uri, dirId: String, parentName: String, depth: Int, out: MutableList<String>
+    ) {
+        if (depth > 7) return
+        val rows = try {
+            children(c, tree, dirId)
+        } catch (e: Exception) {
+            return
+        }
+        for (r in rows) {
+            if (!r.isDir) continue
+            if (r.name == ".Statuses") {
+                out.add(r.id)
+            } else if (r.name in WALK || parentName == "accounts") {
+                findStatusDirs(c, tree, r.id, r.name, depth + 1, out)
+            }
+        }
+    }
 
     /** Where the folder picker should open. */
     fun initialUri(s: Source): Uri {
         val path = if (Build.VERSION.SDK_INT >= 29) {
-            "primary:Android/media/${s.pkg}/${s.dir}/Media/.Statuses"
+            "primary:Android/media/${s.pkg}/${s.dir}"
         } else {
-            "primary:${s.dir}/Media/.Statuses"
+            "primary:${s.dir}"
         }
         return DocumentsContract.buildDocumentUri(AUTHORITY, path)
     }
@@ -54,43 +82,45 @@ object StatusRepo {
         if (!hasAccess(c, s)) return null
         return try {
             val rootId = DocumentsContract.getTreeDocumentId(tree)
-            var folderId = rootId
-            var rows: List<Row>? = null
-            if (!rootId.endsWith(".Statuses")) {
-                // A parent folder was picked. Jump straight to the known status folder inside it.
-                for (target in targets(s)) {
-                    if (target.startsWith(rootId)) {
-                        try {
-                            rows = children(c, tree, target)
-                            folderId = target
-                            break
-                        } catch (e: Exception) {
-                            rows = null
-                        }
-                    }
-                }
+            val dirs = ArrayList<String>()
+            if (rootId.endsWith(".Statuses")) {
+                dirs.add(rootId)
+            } else {
+                findStatusDirs(c, tree, rootId, rootId.substringAfterLast('/'), 0, dirs)
             }
-            var found = rows ?: children(c, tree, rootId)
-            if (rows == null && !rootId.endsWith(".Statuses")) {
-                val sub = found.firstOrNull { it.isDir && it.name == ".Statuses" }
-                if (sub != null) {
-                    found = children(c, tree, sub.id)
-                    folderId = sub.id
-                }
-            }
-            lastFolder = folderId.substringAfter(':')
-            lastFileCount = found.count { !it.isDir }
+            val report = StringBuilder()
+            val seen = HashSet<String>()
             val out = ArrayList<MediaItem>()
-            for (r in found) {
-                if (r.isDir) continue
-                val video = kind(r.name, r.mime) ?: continue
-                out.add(
-                    MediaItem(
-                        DocumentsContract.buildDocumentUriUsingTree(tree, r.id),
-                        r.name, video, r.modified, r.size
+            var files = 0
+            for (dirId in dirs) {
+                val rows = try {
+                    children(c, tree, dirId)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                var media = 0
+                for (r in rows) {
+                    if (r.isDir) continue
+                    val video = kind(r.name, r.mime) ?: continue
+                    media++
+                    if (!seen.add(r.name)) continue
+                    out.add(
+                        MediaItem(
+                            DocumentsContract.buildDocumentUriUsingTree(tree, r.id),
+                            r.name, video, r.modified, r.size
+                        )
                     )
-                )
+                }
+                files += media
+                report.append(dirId.substringAfter(':')).append(": ").append(media).append(" status file(s)\n")
             }
+            if (dirs.isEmpty()) {
+                report.append("No .Statuses folder inside: ").append(rootId.substringAfter(':')).append('\n')
+            }
+            lastReport = report.toString().trim()
+            lastNarrow = rootId.endsWith(".Statuses")
+            lastFolder = rootId.substringAfter(':')
+            lastFileCount = files
             out.sortedByDescending { it.modified }
         } catch (e: Exception) {
             null

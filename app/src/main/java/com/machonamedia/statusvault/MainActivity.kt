@@ -177,7 +177,8 @@ class MainActivity : AppCompatActivity() {
             when {
                 list == null -> showEmpty(
                     "Allow MachStatusVault to read your ${src.label} statuses.\n\n" +
-                        "On the next screen, tap \"Use this folder\" and then \"Allow\".",
+                        "On the next screen the \"${src.dir}\" folder opens. " +
+                        "Tap \"Use this folder\" and then \"Allow\".",
                     "Grant access"
                 ) { askAccess() }
                 list.isEmpty() && tab == 2 -> showEmpty(
@@ -185,21 +186,24 @@ class MainActivity : AppCompatActivity() {
                     null
                 ) {}
                 list.isEmpty() -> {
-                    val folder = StatusRepo.lastFolder
-                    val wrong = !folder.endsWith(".Statuses")
-                    val text = if (wrong) {
-                        "The linked folder is not the status folder:\n$folder\n\n" +
-                            "Tap below and choose the folder named .Statuses."
+                    val what = if (tab == 1) "videos" else "images"
+                    if (StatusRepo.lastNarrow || StatusRepo.lastFileCount == 0) {
+                        showEmpty(
+                            "No $what found.\n\n" +
+                                "Link the whole ${src.label} folder so every status folder is searched: " +
+                                "tap below, make sure the folder named \"${src.dir}\" is open, " +
+                                "then tap \"Use this folder\" and \"Allow\".\n\n" +
+                                "Searched:\n" + StatusRepo.lastReport,
+                            "Link ${src.label} folder"
+                        ) { askAccess() }
                     } else {
-                        "No " + (if (tab == 1) "videos" else "images") + " to show yet.\n\n" +
-                            "Statuses with a green ring in ${src.label} have not been opened. " +
-                            "Open them there first, then pull down here to refresh.\n\n" +
-                            "Linked folder holds ${StatusRepo.lastFileCount} file(s)."
-                    }
-                    if (wrong) {
-                        showEmpty(text, "Choose folder again") { askAccess() }
-                    } else {
-                        showEmpty(text, "Open ${src.label}") { openWhatsApp(src) }
+                        showEmpty(
+                            "No $what to show yet.\n\n" +
+                                "Statuses with a green ring in ${src.label} have not been opened. " +
+                                "Open them there first, then pull down here to refresh.\n\n" +
+                                "Searched:\n" + StatusRepo.lastReport,
+                            "Open ${src.label}"
+                        ) { openWhatsApp(src) }
                     }
                 }
                 else -> hideEmpty()
